@@ -4,5 +4,5 @@ pymongo==4.6.1
 python-dotenv==1.0.1
 gunicorn==21.2.0
 dnspython==2.3.0
-ultralytics
-opencv-python-headless
+ultralytics==8.5.8
+opencv-python-headless==4.8.1.78
