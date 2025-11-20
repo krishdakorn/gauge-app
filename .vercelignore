@@ -1,0 +1,20 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Virtual environments
+.venv/
+env/
+
+# Git
+.git/
+.gitignore
+
+# Uploads (ไม่ควรเก็บใน repo)
+uploads/
+
+# โมเดลใหญ่ (ถ้าเกิน 50MB)
+*.pt
+
+# Jupyter notebooks
+*.ipynb
