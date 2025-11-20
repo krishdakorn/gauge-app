@@ -2,5 +2,17 @@
   "buildCommand": "echo build step",
   "outputDirectory": ".",
   "installCommand": "echo skip",
-  "devCommand": "gunicorn --bind 0.0.0.0:5000 app:app"
+  "devCommand": "gunicorn --bind 0.0.0.0:5000 app:app",
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "app.py"
+    }
+  ]
 }
