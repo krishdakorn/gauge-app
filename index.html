@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>KKD : Gauge Digitization</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="container">
+            <center><h2>Gauge ID : FE0001</h2></center>
+            <form id="uploadForm">
+                <input type="hidden" name="gauge_id" value="FE0001">
+                <input type="hidden" name="ip" id="ip">
+                <input type="hidden" name="lat" id="lat">
+                <input type="hidden" name="lon" id="lon">
+
+                <label>Reading value:</label>
+                <select name="val_read" id="val_read" class="minimal-dropdown">
+                    <option value="OK">OK</option>
+                    <option value="NG : Lo">NG : Lo</option>
+                    <option value="NG : Hi">NG : Hi</option>
+                </select>
+
+                <input type="hidden" name="image" id="imageInput">
+
+                <video id="video" autoplay playsinline></video>
+                <button type="button" id="snap">Capture & Upload</button>
+            </form>
+        </div>
+        <script>
+        const video = document.getElementById('video');
+        const canvas = document.createElement('canvas');
+        const snapBtn = document.getElementById('snap');
+        const imageInput = document.getElementById('imageInput');
+
+        // เปิดกล้องมือถือ
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+            .then(stream => video.srcObject = stream)
+            .catch(err => alert("Cannot access camera: " + err));
+
+        // GET GPS
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(pos => {
+                document.getElementById("lat").value = pos.coords.latitude;
+                document.getElementById("lon").value = pos.coords.longitude;
+            });
+        }
+
+        // GET Client IP
+        fetch("https://api.ipify.org?format=json")
+            .then(r => r.json())
+            .then(data => { document.getElementById("ip").value = data.ip; });
+
+        // Capture & upload
+        snapBtn.addEventListener('click', () => {
+            canvas.width = 640;  // Resize 640x640
+            canvas.height = 640;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, 640, 640);
+
+            // แปลงเป็น base64
+            imageInput.value = canvas.toDataURL('image/jpeg');
+
+            // ส่งข้อมูลไป backend
+            const formData = new FormData(document.getElementById("uploadForm"));
+            fetch("http://localhost:5000/upload", {
+                method: "POST",
+                body: formData
+            })
+            .then(res => res.json())
+            .then(data => {
+                if(data.result_image){
+                    window.open(data.result_image, "_blank");
+                } else {
+                    alert("Upload failed");
+                }
+            })
+            .catch(err => console.error("Error:", err));
+        });
+        </script>
+    </body>
+</html>
